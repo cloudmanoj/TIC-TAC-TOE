@@ -33,6 +33,17 @@ jobs:
           docker push manojlpareek/tic-tac-toe:latest
         env:
           DOCKER_CLI_ACI: 1
+  deploy:
+    needs: build-analyze-scan
+    runs-on: self-hosted # Use your self-hosted runner label here
+    steps:
+      - name: Pull the Docker image
+        run: docker pull manojlpareek/tic-tac-toe:latest
+      - name: Trivy image scan
+        run: trivy image manojlpareek/tic-tac-toe:latest # Add Trivy scan command here
+      - name: Run the container
+        run: docker run -d --name ticgame -p 3000:3000 manojlpareek/tic-tac-toe:latest
+
 
 
 
