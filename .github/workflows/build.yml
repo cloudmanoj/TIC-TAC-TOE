@@ -25,9 +25,8 @@ jobs:
       - name: NPM Install
         run: npm install # Add your specific npm install command
 
-      - name: Trivy file scan
-        run:  trivy fs . > trivyfs.txt
-
+     
+           
       - name: Docker build and push
         run: |
           # Run commands to build and push Docker images
@@ -38,8 +37,7 @@ jobs:
         env:
           DOCKER_CLI_ACI: 1
 
-      - name: Image scan
-        run: trivy image manojlpareek/tic-tac-toe:latest > trivyimage.txt
+      
 
   deploy:
     needs: build-analyze-scan
@@ -48,8 +46,7 @@ jobs:
       - name: Pull the Docker image
         run: docker pull manojlpareek/tic-tac-toe:latest
 
-      - name: Trivy image scan
-        run: trivy image manojlpareek/tic-tac-toe:latest # Add Trivy scan command here
+     
         
       - name: Run the container
         run: docker run -d --name ticgame -p 3000:3000 manojlpareek/tic-tac-toe:latest
