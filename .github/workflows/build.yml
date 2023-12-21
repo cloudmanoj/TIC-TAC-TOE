@@ -1,4 +1,4 @@
-name: Build
+name: Build,Analyze,scan
 
 on:
   push:
@@ -7,23 +7,27 @@ on:
 
 
 jobs:
-  build:
+  build-analyze-scan:
     name: Build
     runs-on: [self-hosted]
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: sonarsource/sonarqube-scan-action@master
+
+      - name: Build and analyze with SonarQube
+        uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
       - name: NPM Install
         run: npm install # Add your specific npm install command
-      - name: Install Trivy
-        run: |
-          # Scanning files
-          trivy fs . > trivyfs.txt
+
+      - name: Trivy file scan
+        run:  trivy fs . > trivyfs.txt
+
       - name: Docker build and push
         run: |
           # Run commands to build and push Docker images
@@ -33,17 +37,20 @@ jobs:
           docker push manojlpareek/tic-tac-toe:latest
         env:
           DOCKER_CLI_ACI: 1
+
       - name: Image scan
         run: trivy image manojlpareek/tic-tac-toe:latest > trivyimage.txt
 
   deploy:
-    needs: Build,Analyze,scan
+    needs: build-analyze-scan
     runs-on: [self-hosted]
     steps:
       - name: Pull the Docker image
         run: docker pull manojlpareek/tic-tac-toe:latest
+
       - name: Trivy image scan
         run: trivy image manojlpareek/tic-tac-toe:latest # Add Trivy scan command here
+        
       - name: Run the container
         run: docker run -d --name ticgame -p 3000:3000 manojlpareek/tic-tac-toe:latest
 
