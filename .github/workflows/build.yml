@@ -37,7 +37,7 @@ jobs:
         run: trivy image manojlpareek/tic-tac-toe:latest > trivyimage.txt
 
   deploy:
-    needs: build-analyze-scan
+    needs: Build,Analyze,scan
     runs-on: [self-hosted]
     steps:
       - name: Pull the Docker image
