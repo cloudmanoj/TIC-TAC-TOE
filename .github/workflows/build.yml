@@ -24,7 +24,7 @@ jobs:
         run: |
           # Scanning files
           trivy fs . > trivyfs.txt
-        - name: Docker build and push
+      - name: Docker build and push
         run: |
           # Run commands to build and push Docker images
           docker build -t tic-tac-toe .
